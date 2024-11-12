@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import GatePassForm from "../component/GatePassForm";
+import Particulars from "../component/Particulars";
 
 export default function CategoryPage() {
   const pathname = usePathname();
@@ -14,7 +15,9 @@ export default function CategoryPage() {
 
     if (category === "Gatepass") {
       setCategoryContent(<GatePassForm />);
-    } else {
+    } else if(category === "Particulars"){
+      setCategoryContent(<Particulars/>);
+    }else {
       setCategoryContent(<p>This page is under construction for the {category} category.</p>);
     }
   }, [pathname]);
