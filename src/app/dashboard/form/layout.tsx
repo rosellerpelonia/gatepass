@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-export default function FormLayout({ children }: { children: React.ReactNode }) {
+export default function FormLayout({ children }) {
   const [isMobileView, setIsMobileView] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const categories: string[] = [
+  const categories = [
     "Gatepass",
     "Particulars",
     "For Approval/Preparation",
@@ -24,11 +25,26 @@ export default function FormLayout({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    // Only run on the client side
+    if (typeof window !== "undefined") {
+      // Get the last part of the path to determine the active category
+      const path = decodeURIComponent(window.location.pathname.split("/").pop() || "");
+      if (categories.includes(path)) {
+        setActiveCategory(path);
+      }
+    }
+  }, []);
+
   const scrollContainer = (direction: "left" | "right") => {
     if (containerRef.current) {
       const scrollAmount = direction === "right" ? 150 : -150;
       containerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setActiveCategory(category);
   };
 
   return (
@@ -62,7 +78,14 @@ export default function FormLayout({ children }: { children: React.ReactNode }) 
               href={`/dashboard/form/category/${encodeURIComponent(category)}`}
               passHref
             >
-              <span className="text-base font-medium text-gray-700 whitespace-nowrap px-4 cursor-pointer">
+              <span
+                onClick={() => handleCategoryClick(category)}
+                className={`text-base font-medium whitespace-nowrap px-4 cursor-pointer ${
+                  activeCategory === category
+                    ? "border-b-2 border-red-500 text-red-500"
+                    : "text-gray-700"
+                }`}
+              >
                 {category}
               </span>
             </Link>
